@@ -2,6 +2,9 @@ package com.cbnt;
 
 import org.influxdb.dto.Point;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,15 +15,13 @@ import java.util.concurrent.TimeUnit;
 public class InfluxDbPoint {
   private Map<String, Object> fields = new HashMap<String, Object>();
   private Map<String, String> tags = new HashMap<String, String>();
+  private Long ts = ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli();
   private Point point;
-
-  // list of keys that should be treated as fields
-  private final static List<String> fieldNames = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
 
   public InfluxDbPoint(String measurement, Map<String, Object> data) {
     convertMapToPoint(null, data);
     this.point = Point.measurement(measurement)
-            .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .time(ts, TimeUnit.MILLISECONDS)
             .fields(this.fields)
             .tag(this.tags)
             .build();
@@ -39,7 +40,9 @@ public class InfluxDbPoint {
       }
       if (value instanceof Map<?, ?>) {
         convertMapToPoint(key, (Map<String, Object>) value);
-      } else if (fieldNames.contains(key) || value instanceof Number) {
+      } else if (key.equals("date")) {
+        this.ts = LocalDateTime.parse(value.toString()).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+      } else if (value instanceof Number) {
         addField(key, value);
       } else {
         addTag(key, value.toString());
