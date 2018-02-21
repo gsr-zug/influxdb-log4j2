@@ -5,9 +5,8 @@ import org.influxdb.dto.Point;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +40,7 @@ public class InfluxDbPoint {
       if (value instanceof Map<?, ?>) {
         convertMapToPoint(key, (Map<String, Object>) value);
       } else if (key.equals("date")) {
-        this.ts = LocalDateTime.parse(value.toString()).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
       } else if (value instanceof Number) {
         addField(key, value);
       } else {
