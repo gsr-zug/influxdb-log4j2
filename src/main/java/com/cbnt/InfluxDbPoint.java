@@ -41,6 +41,8 @@ public class InfluxDbPoint {
         convertMapToPoint(key, (Map<String, Object>) value);
       } else if (key.equals("date")) {
         this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+      } else if (value instanceof Iterable) {
+        // ignore any iterable types
       } else if (value instanceof Number) {
         addField(key, value);
       } else {
