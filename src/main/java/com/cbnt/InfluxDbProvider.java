@@ -28,55 +28,62 @@ import org.apache.logging.log4j.status.StatusLogger;
  */
 @Plugin(name = "InfluxDb", category = "Core", printObject = true)
 public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection> {
-    
-	private static final Logger LOGGER = StatusLogger.getLogger();
 
-	private final String url;
-	private final String username;
-	private final String password;
-	private final String databaseName;
-	private final String seriesName;
-	private final String transport;
-	private final String description;
+  private static final Logger LOGGER = StatusLogger.getLogger();
 
-	private Integer udpPort;
+  private final String url;
+  private final String username;
+  private final String password;
+  private final String databaseName;
+  private final String measurementName;
+  private final String retentionPolicy;
+  private final String description;
+  private final Boolean disableBatch;
+  private final Integer batchActions;
+  private final Integer batchDurationMs;
+  private final Integer udpPort;
 
-    public InfluxDbProvider(final String databaseName, final String seriesName,
-    		final String url, final String username, final String password, final String transport, final Integer udpPort) {
-    	this.databaseName = databaseName;
-		this.seriesName = seriesName;
-		this.url = url;
-		this.username = username;
-		this.password = password;
-		this.transport = transport;
-		this.udpPort = udpPort;
-		this.description = "InfluxDbProvider [" + databaseName + "]"; 
-		validateConfiguration();
-    }
+  public InfluxDbProvider(final String databaseName, final String measurementName,
+                          final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
+    this.databaseName = databaseName;
+    this.measurementName = measurementName;
+    this.url = url;
+    this.username = username;
+    this.password = password;
+    this.retentionPolicy = retentionPolicy;
+    this.disableBatch = disableBatch;
+    this.batchActions = batchActions;
+    this.batchDurationMs = batchDurationMs;
+    this.udpPort = udpPort;
+    this.description = "InfluxDbProvider [" + databaseName + "]";
+    validateConfiguration();
+  }
 
-	private void validateConfiguration() throws IllegalArgumentException {
-	}
+  private void validateConfiguration() throws IllegalArgumentException {
+  }
 
-	@Override
-    public InfluxDbConnection getConnection() {
-        return new InfluxDbConnection(databaseName, seriesName, url, username, password, transport, udpPort);
-    }
+  @Override
+  public InfluxDbConnection getConnection() {
+    return new InfluxDbConnection(databaseName, measurementName, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+  }
 
-    @Override
-    public String toString() {
-        return this.description;
-    }
+  @Override
+  public String toString() {
+    return this.description;
+  }
 
-    @PluginFactory
-    public static InfluxDbProvider createNoSqlProvider(
-            @PluginAttribute(value = "databaseName") final String databaseName,
-            @PluginAttribute(value = "seriesName", defaultString = "applicationLog") final String seriesName,
-            @PluginAttribute(value = "url") final String url,
-            @PluginAttribute(value = "username") final String username,
-            @PluginAttribute(value = "password", sensitive = true) final String password,
-            @PluginAttribute(value = "transport", defaultString = "TCP") final String transport,
-            @PluginAttribute(value = "udpPort", defaultInt = 4444) final Integer udpPort) {
-        return new InfluxDbProvider(databaseName, seriesName, url, username, password, transport, udpPort);
-    }
-
+  @PluginFactory
+  public static InfluxDbProvider createNoSqlProvider(
+          @PluginAttribute(value = "databaseName") final String databaseName,
+          @PluginAttribute(value = "measurementName") final String measurementName,
+          @PluginAttribute(value = "retentionPolicy", defaultString = "autogen") final String retentionPolicy,
+          @PluginAttribute(value = "url") final String url,
+          @PluginAttribute(value = "username") final String username,
+          @PluginAttribute(value = "password", sensitive = true) final String password,
+          @PluginAttribute(value = "disableBatch", defaultBoolean = true) final Boolean disableBatch,
+          @PluginAttribute(value = "batchActions", defaultInt = 2000) final Integer batchActions,
+          @PluginAttribute(value = "batchDurationMs", defaultInt = 100) final Integer batchDurationMs,
+          @PluginAttribute(value = "udpPort") final Integer udpPort) {
+    return new InfluxDbProvider(databaseName, measurementName, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+  }
 }
