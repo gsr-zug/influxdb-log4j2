@@ -1,0 +1,58 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/myproject
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
+      - run: mvn --settings .circleci.settings.xml dependency:go-offline
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      - run: mvn --settings .circleci.settings.xml integration-test
+      - run: mkdir -p /tmp/workspace
+      - run: tar -czf /tmp/workspace/build.tgz .
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - build.tgz
+  release:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/myproject
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: tar -xzf /tmp/workspace/build.tgz
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
+      - run: |
+          # Deploy artifacts
+          mvn --settings .circleci.settings.xml versions:set -DnewVersion=$CIRCLE_TAG &>/dev/null
+          mvn --settings .circleci.settings.xml -PmyMavenRepoWrite -DskipTests deploy
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - release:
+          requires:
+           - build
+          filters:
+            tags:
+              only: /^\d+\.\d+\.\d+$/
+            branches:
+              ignore: /.*/

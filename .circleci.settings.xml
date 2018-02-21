@@ -1,0 +1,34 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>myMavenRepoRead</id>
+      <username>${env.MYMAVENREPO_USERNAME}</username>
+      <password>${env.MYMAVENREPO_PASSWORD}</password>
+    </server>
+    <server>
+      <id>myMavenRepoWrite</id>
+      <username>${env.MYMAVENREPO_USERNAME}</username>
+      <password>${env.MYMAVENREPO_PASSWORD}</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>myMavenRepoRead</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <myMavenRepoReadUrl>${env.MYMAVENREPO_READ_URL}</myMavenRepoReadUrl>
+      </properties>
+    </profile>
+    <profile>
+      <id>myMavenRepoWrite</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <myMavenRepoWriteUrl>${env.MYMAVENREPO_WRITE_URL}</myMavenRepoWriteUrl>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
