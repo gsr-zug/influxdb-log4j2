@@ -2,7 +2,9 @@ package com.cbnt;
 
 import org.influxdb.dto.Point;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +13,9 @@ public class InfluxDbPoint {
   private Map<String, Object> fields = new HashMap<String, Object>();
   private Map<String, String> tags = new HashMap<String, String>();
   private Point point;
+
+  // list of keys that should be treated as fields
+  private final static List<String> fieldNames = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
 
   public InfluxDbPoint(String measurement, Map<String, Object> data) {
     convertMapToPoint(null, data);
@@ -34,7 +39,7 @@ public class InfluxDbPoint {
       }
       if (value instanceof Map<?, ?>) {
         convertMapToPoint(key, (Map<String, Object>) value);
-      } else if (value instanceof Number) {
+      } else if (fieldNames.contains(key) || value instanceof Number) {
         addField(key, value);
       } else {
         addTag(key, value.toString());

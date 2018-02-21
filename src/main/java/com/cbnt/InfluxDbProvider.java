@@ -85,7 +85,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
           @PluginAttribute(value = "disableBatch", defaultBoolean = true) final Boolean disableBatch,
           @PluginAttribute(value = "batchActions", defaultInt = 2000) final Integer batchActions,
           @PluginAttribute(value = "batchDurationMs", defaultInt = 100) final Integer batchDurationMs,
-          @PluginAttribute(value = "udpPort") final Integer udpPort,
+          @PluginAttribute(value = "udpPort", defaultInt = 0) final Integer udpPort,
           @PluginAttribute(value = "enabled", defaultBoolean = false) final Boolean enabled) {
     return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, enabled);
   }
