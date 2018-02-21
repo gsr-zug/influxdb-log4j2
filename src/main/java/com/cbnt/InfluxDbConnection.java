@@ -16,14 +16,14 @@ import java.util.concurrent.TimeUnit;
  */
 public final class InfluxDbConnection implements NoSqlConnection<Map<String, Object>, DefaultNoSqlObject> {
   private InfluxDB influxDB;
-  private String measurementName;
-  private String databaseName;
+  private String measurement;
+  private String database;
   private String retentionPolicy;
   private Integer udpPort;
 
-  public InfluxDbConnection(String databaseName, String measurementName, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
-    this.databaseName = databaseName;
-    this.measurementName = measurementName;
+  public InfluxDbConnection(String database, String measurement, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
+    this.database = database;
+    this.measurement = measurement;
     this.retentionPolicy = retentionPolicy;
     this.udpPort = udpPort;
 
@@ -33,7 +33,7 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
     this.influxDB.setConsistency(ConsistencyLevel.ONE);
 
     // create the database unless it already exists
-    this.influxDB.createDatabase(this.databaseName);
+    this.influxDB.createDatabase(this.database);
 
     // enable batch mode
     if (!disableBatch) {
@@ -54,7 +54,7 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   @Override
   public void insertObject(NoSqlObject<Map<String, Object>> object) {
     // build event point
-    Point eventPoint = new InfluxDbPoint(this.measurementName, object.unwrap()).getPoint();
+    Point eventPoint = new InfluxDbPoint(this.measurement, object.unwrap()).getPoint();
     if (this.udpPort != null) {
       // send using UDP
       this.influxDB.write(this.udpPort, eventPoint);

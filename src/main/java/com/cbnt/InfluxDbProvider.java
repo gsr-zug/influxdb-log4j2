@@ -34,8 +34,8 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
   private final String url;
   private final String username;
   private final String password;
-  private final String databaseName;
-  private final String measurementName;
+  private final String database;
+  private final String measurement;
   private final String retentionPolicy;
   private final String description;
   private final Boolean disableBatch;
@@ -43,10 +43,10 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
   private final Integer batchDurationMs;
   private final Integer udpPort;
 
-  public InfluxDbProvider(final String databaseName, final String measurementName,
+  public InfluxDbProvider(final String database, final String measurement,
                           final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
-    this.databaseName = databaseName;
-    this.measurementName = measurementName;
+    this.database = database;
+    this.measurement = measurement;
     this.url = url;
     this.username = username;
     this.password = password;
@@ -55,7 +55,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
     this.batchActions = batchActions;
     this.batchDurationMs = batchDurationMs;
     this.udpPort = udpPort;
-    this.description = "InfluxDbProvider [" + databaseName + "]";
+    this.description = "InfluxDbProvider [" + database + "]";
     validateConfiguration();
   }
 
@@ -64,7 +64,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
 
   @Override
   public InfluxDbConnection getConnection() {
-    return new InfluxDbConnection(databaseName, measurementName, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+    return new InfluxDbConnection(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
   }
 
   @Override
@@ -74,8 +74,8 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
 
   @PluginFactory
   public static InfluxDbProvider createNoSqlProvider(
-          @PluginAttribute(value = "databaseName") final String databaseName,
-          @PluginAttribute(value = "measurementName") final String measurementName,
+          @PluginAttribute(value = "database") final String database,
+          @PluginAttribute(value = "measurement") final String measurement,
           @PluginAttribute(value = "retentionPolicy", defaultString = "autogen") final String retentionPolicy,
           @PluginAttribute(value = "url") final String url,
           @PluginAttribute(value = "username") final String username,
@@ -84,6 +84,6 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
           @PluginAttribute(value = "batchActions", defaultInt = 2000) final Integer batchActions,
           @PluginAttribute(value = "batchDurationMs", defaultInt = 100) final Integer batchDurationMs,
           @PluginAttribute(value = "udpPort") final Integer udpPort) {
-    return new InfluxDbProvider(databaseName, measurementName, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+    return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
   }
 }

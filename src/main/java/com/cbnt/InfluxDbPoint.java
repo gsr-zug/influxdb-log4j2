@@ -12,9 +12,9 @@ public class InfluxDbPoint {
   private Map<String, String> tags = new HashMap<String, String>();
   private Point point;
 
-  public InfluxDbPoint(String measurementName, Map<String, Object> data) {
+  public InfluxDbPoint(String measurement, Map<String, Object> data) {
     convertMapToPoint(null, data);
-    this.point = Point.measurement(measurementName)
+    this.point = Point.measurement(measurement)
             .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
             .fields(this.fields)
             .tag(this.tags)
