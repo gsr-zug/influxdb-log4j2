@@ -42,9 +42,10 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
   private final Integer batchActions;
   private final Integer batchDurationMs;
   private final Integer udpPort;
+  private final Boolean enabled;
 
   public InfluxDbProvider(final String database, final String measurement,
-                          final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
+                          final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, final Integer batchActions, final Integer batchDurationMs, final Integer udpPort, final Boolean enabled) {
     this.database = database;
     this.measurement = measurement;
     this.url = url;
@@ -55,6 +56,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
     this.batchActions = batchActions;
     this.batchDurationMs = batchDurationMs;
     this.udpPort = udpPort;
+    this.enabled = enabled;
     this.description = "InfluxDbProvider [" + database + "]";
     validateConfiguration();
   }
@@ -64,7 +66,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
 
   @Override
   public InfluxDbConnection getConnection() {
-    return new InfluxDbConnection(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+    return new InfluxDbConnection(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, enabled);
   }
 
   @Override
@@ -83,7 +85,8 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
           @PluginAttribute(value = "disableBatch", defaultBoolean = true) final Boolean disableBatch,
           @PluginAttribute(value = "batchActions", defaultInt = 2000) final Integer batchActions,
           @PluginAttribute(value = "batchDurationMs", defaultInt = 100) final Integer batchDurationMs,
-          @PluginAttribute(value = "udpPort") final Integer udpPort) {
-    return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort);
+          @PluginAttribute(value = "udpPort") final Integer udpPort,
+          @PluginAttribute(value = "enabled", defaultBoolean = false) final Boolean enabled) {
+    return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, enabled);
   }
 }

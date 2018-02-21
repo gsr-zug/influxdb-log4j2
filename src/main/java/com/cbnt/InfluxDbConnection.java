@@ -20,24 +20,28 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   private String database;
   private String retentionPolicy;
   private Integer udpPort;
+  private Boolean enabled;
 
-  public InfluxDbConnection(String database, String measurement, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort) {
+  public InfluxDbConnection(String database, String measurement, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort, Boolean enabled) {
     this.database = database;
     this.measurement = measurement;
     this.retentionPolicy = retentionPolicy;
     this.udpPort = udpPort;
+    this.enabled = enabled;
 
     // Initialize InfluxDB object
-    this.influxDB = InfluxDBFactory.connect(url, username, password);
-    this.influxDB.setRetentionPolicy(this.retentionPolicy);
-    this.influxDB.setConsistency(ConsistencyLevel.ONE);
+    if (enabled) {
+      this.influxDB = InfluxDBFactory.connect(url, username, password);
+      this.influxDB.setRetentionPolicy(this.retentionPolicy);
+      this.influxDB.setConsistency(ConsistencyLevel.ONE);
 
-    // create the database unless it already exists
-    this.influxDB.createDatabase(this.database);
+      // create the database unless it already exists
+      this.influxDB.createDatabase(this.database);
 
-    // enable batch mode
-    if (!disableBatch) {
-      this.influxDB.enableBatch(batchActions, batchDurationMs, TimeUnit.MILLISECONDS);
+      // enable batch mode
+      if (!disableBatch) {
+        this.influxDB.enableBatch(batchActions, batchDurationMs, TimeUnit.MILLISECONDS);
+      }
     }
   }
 
@@ -53,14 +57,16 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
 
   @Override
   public void insertObject(NoSqlObject<Map<String, Object>> object) {
-    // build event point
-    Point eventPoint = new InfluxDbPoint(this.measurement, object.unwrap()).getPoint();
-    if (this.udpPort != null) {
-      // send using UDP
-      this.influxDB.write(this.udpPort, eventPoint);
-    } else {
-      // send using standard interface (HTTP)
-      this.influxDB.write(eventPoint);
+    if (this.enabled) {
+      // build event point
+      Point eventPoint = new InfluxDbPoint(this.measurement, object.unwrap()).getPoint();
+      if (this.udpPort != null) {
+        // send using UDP
+        this.influxDB.write(this.udpPort, eventPoint);
+      } else {
+        // send using standard interface (HTTP)
+        this.influxDB.write(eventPoint);
+      }
     }
   }
 
