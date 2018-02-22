@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +17,7 @@ public class InfluxDbPoint {
   private Map<String, Object> fields = new HashMap<String, Object>();
   private Map<String, String> tags = new HashMap<String, String>();
   private Long ts = ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli();
+  private final static List<String> reservedFields = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
   private Point point;
 
   public InfluxDbPoint(String measurement, Map<String, Object> data) {
@@ -43,7 +46,7 @@ public class InfluxDbPoint {
         this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
       } else if (value instanceof Iterable) {
         // ignore any iterable types
-      } else if (value instanceof Number) {
+      } else if (reservedFields.contains(key) || value instanceof Number) {
         addField(key, value);
       } else {
         addTag(key, value.toString());
