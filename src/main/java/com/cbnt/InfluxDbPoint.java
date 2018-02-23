@@ -43,10 +43,14 @@ public class InfluxDbPoint {
       if (value instanceof Map<?, ?>) {
         convertMapToPoint(key, (Map<String, Object>) value);
       } else if (key.equals("date")) {
-        this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        try {
+          this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
+        } catch (Exception e) {
+          // never mind, we will use the system time
+        }
       } else if (value instanceof Iterable) {
         // ignore any iterable types
-      } else if (reservedFields.contains(key) || value instanceof Number) {
+      } else if (reservedFields.contains(key) || value instanceof Number || value instanceof Boolean) {
         addField(key, value);
       } else {
         addTag(key, value.toString());
