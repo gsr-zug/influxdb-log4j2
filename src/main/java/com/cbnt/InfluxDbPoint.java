@@ -18,8 +18,8 @@ public class InfluxDbPoint {
   private Long ts = (now.toInstant().getEpochSecond() * 1000000000L) + now.toInstant().getNano();
   private final static List<String> defaultTags = Arrays.asList("level", "loggerName", "millis", "source.className", "source.fileName", "source.methodName", "threadId", "threadName", "threadPriority", "thrown.type");
   private final static List<String> defaultFields = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
-  private HashMap<String, String> includeFields;
-  private HashMap<String, String> includeTags;
+  private HashMap<String, String> includeFields = new HashMap<String, String>();
+  private HashMap<String, String> includeTags = new HashMap<String, String>();
   private List<String> excludeFields;
   private List<String> excludeTags;
   private Point point;

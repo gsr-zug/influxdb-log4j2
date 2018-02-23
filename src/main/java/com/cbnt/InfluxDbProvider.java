@@ -23,10 +23,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.nosql.appender.NoSqlProvider;
 import org.apache.logging.log4j.status.StatusLogger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The InfluxDB implementation of {@link NoSqlProvider}.
@@ -47,10 +44,11 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
   private final Integer batchActions;
   private final Integer batchDurationMs;
   private final Integer udpPort;
-  private final HashMap<String, String> includeTags = new HashMap<String, String>();
-  private final HashMap<String, String> includeFields = new HashMap<String, String>();
-  private final List<String> excludeFields;
-  private final List<String> excludeTags;
+
+  private HashMap<String, String> includeTags = new HashMap<String, String>();
+  private HashMap<String, String> includeFields = new HashMap<String, String>();
+  private List<String> excludeFields = new ArrayList<>();
+  private List<String> excludeTags = new ArrayList<>();
 
   public InfluxDbProvider(final String database, final String measurement,
                           final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, final Integer batchActions, final Integer batchDurationMs, final Integer udpPort, final String includeFields, final String includeTags, final String excludeFields, final String excludeTags) {
@@ -65,26 +63,35 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
     this.batchDurationMs = batchDurationMs;
     this.udpPort = udpPort;
 
-    Arrays.asList(includeTags.split(",")).forEach(s -> {
-      String[] items = s.split(":");
-      if (items.length == 2) {
-        this.includeTags.put(items[0], items[1]);
-      } else {
-        this.includeTags.put(items[0], items[0]);
-      }
-    });
+    if (includeTags != null) {
+      Arrays.asList(includeTags.split(",")).forEach(s -> {
+        String[] items = s.split(":");
+        if (items.length == 2) {
+          this.includeTags.put(items[0], items[1]);
+        } else {
+          this.includeTags.put(items[0], items[0]);
+        }
+      });
+    }
 
-    Arrays.asList(includeFields.split(",")).forEach(s -> {
-      String[] items = s.split(":");
-      if (items.length == 2) {
-        this.includeFields.put(items[0], items[1]);
-      } else {
-        this.includeFields.put(items[0], items[0]);
-      }
-    });
+    if (includeFields != null) {
+      Arrays.asList(includeFields.split(",")).forEach(s -> {
+        String[] items = s.split(":");
+        if (items.length == 2) {
+          this.includeFields.put(items[0], items[1]);
+        } else {
+          this.includeFields.put(items[0], items[0]);
+        }
+      });
+    }
 
-    this.excludeFields = Arrays.asList(excludeFields.split(","));
-    this.excludeTags = Arrays.asList(excludeTags.split(","));
+    if (excludeFields != null) {
+      this.excludeFields = Arrays.asList(excludeFields.split(","));
+    }
+
+    if (excludeTags != null) {
+      this.excludeTags = Arrays.asList(excludeTags.split(","));
+    }
 
     this.description = "InfluxDbProvider [" + database + "]";
     validateConfiguration();
