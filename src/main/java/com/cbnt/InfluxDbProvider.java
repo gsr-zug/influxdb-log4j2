@@ -51,10 +51,9 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
   private final HashMap<String, String> includeFields = new HashMap<String, String>();
   private final List<String> excludeFields;
   private final List<String> excludeTags;
-  private final Boolean enabled;
 
   public InfluxDbProvider(final String database, final String measurement,
-                          final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, final Integer batchActions, final Integer batchDurationMs, final Integer udpPort, final String includeFields, final String includeTags, final String excludeFields, final String excludeTags, final Boolean enabled) {
+                          final String retentionPolicy, final String url, final String username, final String password, Boolean disableBatch, final Integer batchActions, final Integer batchDurationMs, final Integer udpPort, final String includeFields, final String includeTags, final String excludeFields, final String excludeTags) {
     this.database = database;
     this.measurement = measurement;
     this.url = url;
@@ -65,7 +64,6 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
     this.batchActions = batchActions;
     this.batchDurationMs = batchDurationMs;
     this.udpPort = udpPort;
-    this.enabled = enabled;
 
     Arrays.asList(includeTags.split(",")).forEach(s -> {
       String[] items = s.split(":");
@@ -97,7 +95,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
 
   @Override
   public InfluxDbConnection getConnection() {
-    return new InfluxDbConnection(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, includeFields, includeTags, excludeFields, excludeTags, enabled);
+    return new InfluxDbConnection(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, includeFields, includeTags, excludeFields, excludeTags);
   }
 
   @Override
@@ -120,8 +118,7 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
           @PluginAttribute(value = "includeFields", defaultString = "") final String includeFields,
           @PluginAttribute(value = "excludeFields", defaultString = "") final String excludeFields,
           @PluginAttribute(value = "includeTags", defaultString = "") final String includeTags,
-          @PluginAttribute(value = "excludeTags", defaultString = "") final String excludeTags,
-          @PluginAttribute(value = "enabled", defaultBoolean = false) final Boolean enabled) {
-    return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, includeFields, includeTags, excludeFields, excludeTags, enabled);
+          @PluginAttribute(value = "excludeTags", defaultString = "") final String excludeTags) {
+    return new InfluxDbProvider(database, measurement, retentionPolicy, url, username, password, disableBatch, batchActions, batchDurationMs, udpPort, includeFields, includeTags, excludeFields, excludeTags);
   }
 }
