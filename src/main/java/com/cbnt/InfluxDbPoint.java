@@ -2,10 +2,8 @@ package com.cbnt;
 
 import org.influxdb.dto.Point;
 
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -16,17 +14,30 @@ import java.util.concurrent.TimeUnit;
 public class InfluxDbPoint {
   private Map<String, Object> fields = new HashMap<String, Object>();
   private Map<String, String> tags = new HashMap<String, String>();
-  private Long ts = ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli();
-  private final static List<String> reservedFields = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
+  private ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+  private Long ts = (now.toInstant().getEpochSecond() * 1000000000L) + now.toInstant().getNano();
+  private final static List<String> defaultTags = Arrays.asList("level", "loggerName", "millis", "source.className", "source.fileName", "source.methodName", "threadId", "threadName", "threadPriority", "thrown.type");
+  private final static List<String> defaultFields = Arrays.asList("message", "thrown.message", "thrown.stackTrace");
+  private HashMap<String, String> includeFields;
+  private HashMap<String, String> includeTags;
+  private List<String> excludeFields;
+  private List<String> excludeTags;
   private Point point;
 
-  public InfluxDbPoint(String measurement, Map<String, Object> data) {
+  public InfluxDbPoint(String measurement, HashMap<String, String> includeFields, HashMap<String, String> includeTags, List<String> excludeFields, List<String> excludeTags, Map<String, Object> data) {
     convertMapToPoint(null, data);
     this.point = Point.measurement(measurement)
-            .time(ts, TimeUnit.MILLISECONDS)
+            .time(ts, TimeUnit.NANOSECONDS)
             .fields(this.fields)
             .tag(this.tags)
             .build();
+
+    defaultFields.stream().map(x -> this.includeFields.put(x, x));
+    defaultTags.stream().map(x -> this.includeTags.put(x, x));
+    this.includeFields.putAll(includeTags);
+    this.includeTags.putAll(includeFields);
+    this.excludeFields = excludeFields;
+    this.excludeTags = excludeTags;
   }
 
   @SuppressWarnings("unchecked")
@@ -43,17 +54,27 @@ public class InfluxDbPoint {
       if (value instanceof Map<?, ?>) {
         convertMapToPoint(key, (Map<String, Object>) value);
       } else if (key.equals("date")) {
-        try {
-          this.ts = LocalDateTime.parse(value.toString(), DateTimeFormatter.ofPattern("eee MMM dd HH:mm:ss zzz uuuu")).atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
-        } catch (Exception e) {
-          // never mind, we will use the system time
-        }
+        return;
       } else if (value instanceof Iterable) {
-        // ignore any iterable types
-      } else if (reservedFields.contains(key) || value instanceof Number || value instanceof Boolean) {
-        addField(key, value);
+        return;
+      } else if (this.includeFields.containsKey(key)) {
+        if (!this.excludeTags.contains(key)) {
+          addField(includeFields.get(key), value);
+        }
+      } else if (this.includeTags.containsKey(key)) {
+        if (!this.excludeTags.contains(key)) {
+          addTag(this.includeTags.get(key), value.toString());
+        }
       } else {
-        addTag(key, value.toString());
+        if (value instanceof Number || value instanceof Boolean) {
+          if (this.excludeFields.contains(key)) {
+            addField(key, value);
+          }
+        } else {
+          if (!this.excludeTags.contains(key)) {
+            addTag(key, value.toString());
+          }
+        }
       }
     }
   }
