@@ -24,31 +24,29 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   private Map<String, String> includeTags;
   private List<String> excludeFields;
   private List<String> excludeTags;
-  private Boolean enabled;
 
-  public InfluxDbConnection(String database, String measurement, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort, Map<String, String> includeFields, Map<String, String> includeTags, List<String> excludeFields, List<String> excludeTags, Boolean enabled) {
+  public InfluxDbConnection(String database, String measurement, String retentionPolicy, String url, String username, String password, Boolean disableBatch, Integer batchActions, Integer batchDurationMs, Integer udpPort, Map<String, String> includeFields, Map<String, String> includeTags, List<String> excludeFields, List<String> excludeTags, Boolean lazyInit) {
     this.measurement = measurement;
     this.udpPort = udpPort;
     this.includeFields = includeFields;
     this.includeTags = includeTags;
     this.excludeFields = excludeFields;
     this.excludeTags = excludeTags;
-    this.enabled = enabled;
 
     // Initialize InfluxDB object
-    if (enabled) {
     this.influxDB = InfluxDBFactory.connect(url, username, password);
     this.influxDB.setDatabase(database);
     this.influxDB.setRetentionPolicy(retentionPolicy);
     this.influxDB.setConsistency(ConsistencyLevel.ONE);
 
     // create the database unless it already exists
+    if (lazyInit) {
       this.influxDB.createDatabase(database);
+    }
 
       // enable batch mode
-      if (!disableBatch) {
-        this.influxDB.enableBatch(batchActions, batchDurationMs, TimeUnit.MILLISECONDS);
-      }
+    if (!disableBatch) {
+      this.influxDB.enableBatch(batchActions, batchDurationMs, TimeUnit.MILLISECONDS);
     }
   }
 
@@ -65,15 +63,13 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   @Override
   public void insertObject(NoSqlObject<Map<String, Object>> object) {
     // build event point
-    if (this.enabled) {
-      Point eventPoint = new InfluxDbPoint(this.measurement, this.includeFields, this.includeTags, this.excludeFields, this.excludeTags, object.unwrap()).getPoint();
-      if (this.udpPort > 0) {
-        // send using UDP
-        this.influxDB.write(this.udpPort, eventPoint);
-      } else {
-        // send using standard interface (HTTP)
-        this.influxDB.write(eventPoint);
-      }
+    Point eventPoint = new InfluxDbPoint(this.measurement, this.includeFields, this.includeTags, this.excludeFields, this.excludeTags, object.unwrap()).getPoint();
+    if (this.udpPort > 0) {
+      // send using UDP
+      this.influxDB.write(this.udpPort, eventPoint);
+    } else {
+      // send using standard interface (HTTP)
+      this.influxDB.write(eventPoint);
     }
   }
 
