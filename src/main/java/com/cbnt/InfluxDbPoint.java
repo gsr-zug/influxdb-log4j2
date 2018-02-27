@@ -57,7 +57,7 @@ public class InfluxDbPoint {
       } else if (value instanceof Iterable) {
         continue;
       } else if (this.includeFields.containsKey(key)) {
-        if (!this.excludeTags.contains(key)) {
+        if (!this.excludeFields.contains(key)) {
           addField(this.includeFields.get(key), value);
         }
       } else if (this.includeTags.containsKey(key)) {
