@@ -88,11 +88,11 @@ public final class InfluxDbProvider implements NoSqlProvider<InfluxDbConnection>
     }
 
     if (excludeFields != null) {
-      this.excludeFields = Arrays.asList(excludeFields.split(","));
+      this.excludeFields.addAll(Arrays.asList(excludeFields.split(",")));
     }
 
     if (excludeTags != null) {
-      this.excludeTags = Arrays.asList(excludeTags.split(","));
+      this.excludeTags.addAll(Arrays.asList(excludeTags.split(",")));
     }
 
     this.description = "InfluxDbProvider [" + database + "]";

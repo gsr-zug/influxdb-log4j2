@@ -6,7 +6,7 @@
   <groupId>com.cbnt</groupId>
   <artifactId>influxdb-log4j2</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
   <name>InfluxDB Log4j2 Appender</name>
   <description>Log4j2 Appender to InfluxDB</description>
   <url>http://www.influxdb.org</url>

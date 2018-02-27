@@ -18,7 +18,7 @@ public class InfluxDbPoint {
   private Map<String, String> includeFields = new HashMap<String, String>();
   private Map<String, String> includeTags = new HashMap<String, String>();
   private List<String> excludeFields = new ArrayList<>();
-  private List<String> excludeTags = Arrays.asList("date");
+  private List<String> excludeTags = new ArrayList<>();
   private Point point;
 
   public InfluxDbPoint(String measurement, Map<String, String> includeFields, Map<String, String> includeTags, List<String> excludeFields, List<String> excludeTags, Map<String, Object> data) {
