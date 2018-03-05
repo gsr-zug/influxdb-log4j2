@@ -40,7 +40,7 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
     this.influxDB.setConsistency(ConsistencyLevel.ONE);
 
     // create the database unless it already exists
-    if (lazyInit) {
+    if (!lazyInit) {
       this.influxDB.createDatabase(database);
     }
 
