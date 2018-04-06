@@ -64,7 +64,7 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   public void insertObject(NoSqlObject<Map<String, Object>> object) {
     // build event point
     Point eventPoint = new InfluxDbPoint(this.measurement, this.includeFields, this.includeTags, this.excludeFields, this.excludeTags, object.unwrap()).getPoint();
-    System.out.println(String.format("UDP port is: %d", this.udpPort));
+    //System.out.println(String.format("UDP port is: %d", this.udpPort));
     if (this.udpPort > 0) {
       // send using UDP
       this.influxDB.write(this.udpPort, eventPoint);
