@@ -17,10 +17,10 @@
 package com.cbnt;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.appender.nosql.NoSqlProvider;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.apache.logging.log4j.nosql.appender.NoSqlProvider;
 import org.apache.logging.log4j.status.StatusLogger;
 
 import java.util.*;

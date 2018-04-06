@@ -6,7 +6,7 @@
   <groupId>com.cbnt</groupId>
   <artifactId>influxdb-log4j2</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.8</version>
+  <version>0.1.0</version>
   <name>InfluxDB Log4j2 Appender</name>
   <description>Log4j2 Appender to InfluxDB</description>
   <url>http://www.influxdb.org</url>
@@ -30,7 +30,7 @@
     <jdk.source>1.8</jdk.source>
     <jdk.target>1.8</jdk.target>
     <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-    <log4j.version>2.9.1</log4j.version>
+    <log4j.version>2.11.0</log4j.version>
   </properties>
 
   <developers>
@@ -77,11 +77,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-nosql</artifactId>
-      <version>${log4j.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>

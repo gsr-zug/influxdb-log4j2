@@ -1,8 +1,8 @@
 package com.cbnt;
 
-import org.apache.logging.log4j.nosql.appender.DefaultNoSqlObject;
-import org.apache.logging.log4j.nosql.appender.NoSqlConnection;
-import org.apache.logging.log4j.nosql.appender.NoSqlObject;
+import org.apache.logging.log4j.core.appender.nosql.DefaultNoSqlObject;
+import org.apache.logging.log4j.core.appender.nosql.NoSqlConnection;
+import org.apache.logging.log4j.core.appender.nosql.NoSqlObject;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDB.ConsistencyLevel;
 import org.influxdb.InfluxDBFactory;
@@ -64,6 +64,7 @@ public final class InfluxDbConnection implements NoSqlConnection<Map<String, Obj
   public void insertObject(NoSqlObject<Map<String, Object>> object) {
     // build event point
     Point eventPoint = new InfluxDbPoint(this.measurement, this.includeFields, this.includeTags, this.excludeFields, this.excludeTags, object.unwrap()).getPoint();
+    System.out.println(String.format("UDP port is: %d", this.udpPort));
     if (this.udpPort > 0) {
       // send using UDP
       this.influxDB.write(this.udpPort, eventPoint);

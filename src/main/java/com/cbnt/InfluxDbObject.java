@@ -1,6 +1,6 @@
 package com.cbnt;
 
-import org.apache.logging.log4j.nosql.appender.NoSqlObject;
+import org.apache.logging.log4j.core.appender.nosql.NoSqlObject;
 
 public final class InfluxDbObject implements NoSqlObject<InfluxDbNoSqlObject> {
 
